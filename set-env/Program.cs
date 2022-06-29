@@ -28,24 +28,34 @@ namespace set_env
             {
                 Directory.CreateDirectory(envProfileFolder);
             }
- 
             if (!IsAdministrator())
             {
                 Console.WriteLine("Admin permission is required");
                 return;
             }
-
-
-            if (args.Length == 2)
+            if (args.Length == 1)
             {
                 if (args[0].ToLower() == "list")
                 {
+                    Console.WriteLine($"Profiles: ");
                     var list = Directory.GetFiles(envProfileFolder, "*.env");
                     foreach (var env in list)
                     {
                         Console.WriteLine($"* {Path.GetFileNameWithoutExtension(env)}");
                     }
-                } 
+                }
+            }
+            else if (args.Length == 2)
+            {
+                if (args[0].ToLower() == "list")
+                {
+                    Console.WriteLine($"Profiles: ");
+                    var list = Directory.GetFiles(envProfileFolder, "*.env");
+                    foreach (var env in list)
+                    {
+                        Console.WriteLine($"* {Path.GetFileNameWithoutExtension(env)}");
+                    }
+                }
                 else if (args[0].ToLower() == "save")
                 {
                     var varsUser = Environment.GetEnvironmentVariables(EnvironmentVariableTarget.User);
@@ -57,19 +67,19 @@ namespace set_env
                         MachineVars = CreateDictionary(varsMachine),
                     };
 
-                    File.WriteAllText(Path.Combine(envProfileFolder, args[1]),
+                    File.WriteAllText(Path.Combine(envProfileFolder, args[1]) + ".env",
                         Newtonsoft.Json.JsonConvert.SerializeObject(@struct));
                 }
                 else if (args[0].ToLower() == "load")
                 {
-                    if (!File.Exists(Path.Combine(envProfileFolder, args[1])))
+                    if (!File.Exists(Path.Combine(envProfileFolder, args[1]) + ".env"))
                     {
                         Console.WriteLine($"Profile {args[1]} is not exist");
                         return;
                     }
 
                     Console.WriteLine($"Loading profile...");
-                    string EnvPath = File.ReadAllText(Path.Combine(envProfileFolder, args[1]));
+                    string EnvPath = File.ReadAllText(Path.Combine(envProfileFolder, args[1]) + ".env");
                     var profileStruct = Newtonsoft.Json.JsonConvert.DeserializeObject<ProfileStruct>(EnvPath);
 
                     var varsUser = Environment.GetEnvironmentVariables(EnvironmentVariableTarget.User);
@@ -101,7 +111,7 @@ namespace set_env
                     UnavaiableCommands();
                 }
             }
-            if (args.Length == 0)
+            else
             {
                 AvailableCommands();
             }
