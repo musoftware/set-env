@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Security.Principal;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -10,6 +11,14 @@ namespace set_env
 {
     class Program
     {
+        public static bool IsAdministrator()
+        {
+            WindowsIdentity identity = WindowsIdentity.GetCurrent();
+            WindowsPrincipal principal = new WindowsPrincipal(identity);
+            return principal.IsInRole(WindowsBuiltInRole.Administrator);
+        }
+
+
         static void Main(string[] args)
         {
             string path = System.IO.Path.GetDirectoryName(Assembly.GetEntryAssembly().Location); ;
@@ -20,10 +29,24 @@ namespace set_env
                 Directory.CreateDirectory(envProfileFolder);
             }
  
+            if (!IsAdministrator())
+            {
+                Console.WriteLine("Admin permission is required");
+                return;
+            }
+
 
             if (args.Length == 2)
             {
-                if (args[0].ToLower() == "save")
+                if (args[0].ToLower() == "list")
+                {
+                    var list = Directory.GetFiles(envProfileFolder, "*.env");
+                    foreach (var env in list)
+                    {
+                        Console.WriteLine($"* {Path.GetFileNameWithoutExtension(env)}");
+                    }
+                } 
+                else if (args[0].ToLower() == "save")
                 {
                     var varsUser = Environment.GetEnvironmentVariables(EnvironmentVariableTarget.User);
                     var varsMachine = Environment.GetEnvironmentVariables(EnvironmentVariableTarget.Machine);
@@ -37,8 +60,7 @@ namespace set_env
                     File.WriteAllText(Path.Combine(envProfileFolder, args[1]),
                         Newtonsoft.Json.JsonConvert.SerializeObject(@struct));
                 }
-
-                if (args[0].ToLower() == "load")
+                else if (args[0].ToLower() == "load")
                 {
                     if (!File.Exists(Path.Combine(envProfileFolder, args[1])))
                     {
@@ -74,15 +96,29 @@ namespace set_env
                         Environment.SetEnvironmentVariable(item.Key, item.Value, EnvironmentVariableTarget.Machine);
                     Console.WriteLine($"Setted Machine Env Vars!");
                 }
-
+                else
+                {
+                    UnavaiableCommands();
+                }
             }
-
             if (args.Length == 0)
             {
-                Console.WriteLine("set-env load {Profile}");
-                Console.WriteLine("set-env save {Profile}");
-                Console.ReadKey();
+                AvailableCommands();
             }
+        }
+
+        static void UnavaiableCommands()
+        {
+            Console.WriteLine("this command is not exist");
+            AvailableCommands();
+        }
+
+        static void AvailableCommands()
+        {
+            Console.WriteLine("Available Commands:");
+            Console.WriteLine("set-env list");
+            Console.WriteLine("set-env load {Profile}");
+            Console.WriteLine("set-env save {Profile}");
         }
 
         private static Dictionary<string, string> CreateDictionary(System.Collections.IDictionary vars)
