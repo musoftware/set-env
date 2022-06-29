@@ -1,0 +1,11 @@
+D:\Projects\1AOrganized\CSharp Projects\Musoftware\set-env\set-env\bin\Release\set-env.exe.config
+D:\Projects\1AOrganized\CSharp Projects\Musoftware\set-env\set-env\bin\Release\set-env.exe
+D:\Projects\1AOrganized\CSharp Projects\Musoftware\set-env\set-env\bin\Release\set-env.pdb
+D:\Projects\1AOrganized\CSharp Projects\Musoftware\set-env\set-env\bin\Release\Newtonsoft.Json.xml
+D:\Projects\1AOrganized\CSharp Projects\Musoftware\set-env\set-env\bin\Release\System.Diagnostics.DiagnosticSource.xml
+D:\Projects\1AOrganized\CSharp Projects\Musoftware\set-env\set-env\obj\Release\set-env.csproj.AssemblyReference.cache
+D:\Projects\1AOrganized\CSharp Projects\Musoftware\set-env\set-env\obj\Release\set-env.csproj.CoreCompileInputs.cache
+D:\Projects\1AOrganized\CSharp Projects\Musoftware\set-env\set-env\obj\Release\set-env.csproj.Fody.CopyLocal.cache
+D:\Projects\1AOrganized\CSharp Projects\Musoftware\set-env\set-env\obj\Release\set-env.csproj.CopyComplete
+D:\Projects\1AOrganized\CSharp Projects\Musoftware\set-env\set-env\obj\Release\set-env.exe
+D:\Projects\1AOrganized\CSharp Projects\Musoftware\set-env\set-env\obj\Release\set-env.pdb

@@ -19,10 +19,7 @@ namespace set_env
             {
                 Directory.CreateDirectory(envProfileFolder);
             }
-
-            args = new string[2];
-            args[0] = "load";
-            args[1] = "prof2";
+ 
 
             if (args.Length == 2)
             {
