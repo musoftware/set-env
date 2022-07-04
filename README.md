@@ -9,14 +9,14 @@ Backup Your Machine Enviroment and restore into profiles
 4. type on **CMD** 
 
 ## COMMANDS
-**set-env** save profile1
+**set-env save profile1**
 
 To save currenct enviroment variables
 
-**set-env** load profile1
+**set-env load profile1**
 
 To load profile1 into enviroment variables
 
-**set-env** list
+**set-env list**
 
 To list all available profiles
