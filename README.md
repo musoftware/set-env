@@ -10,10 +10,13 @@ Backup Your Machine Enviroment and restore into profiles
 
 ## COMMANDS
 **set-env** save profile1
+
 To save currenct enviroment variables
 
 **set-env** load profile1
+
 To load profile1 into enviroment variables
 
 **set-env** list
+
 To list all available profiles
