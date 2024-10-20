@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -18,103 +19,92 @@ namespace set_env
             return principal.IsInRole(WindowsBuiltInRole.Administrator);
         }
 
-
         static void Main(string[] args)
         {
-            string path = System.IO.Path.GetDirectoryName(Assembly.GetEntryAssembly().Location); ;
 
-            string envProfileFolder = Path.Combine(path, "env");
-            if (!Directory.Exists(envProfileFolder))
-            {
-                Directory.CreateDirectory(envProfileFolder);
-            }
-            if (!IsAdministrator())
-            {
-                Console.WriteLine("Admin permission is required");
-                return;
-            }
+            string path = Path.GetDirectoryName(Assembly.GetEntryAssembly().Location);
+            EnvProfileManager profileManager = new EnvProfileManager(path);
+
+
+
             if (args.Length == 1)
             {
-                if (args[0].ToLower() == "list")
+                switch (args[0].ToLower())
                 {
-                    Console.WriteLine($"Profiles: ");
-                    var list = Directory.GetFiles(envProfileFolder, "*.env");
-                    foreach (var env in list)
-                    {
-                        Console.WriteLine($"* {Path.GetFileNameWithoutExtension(env)}");
-                    }
+                    case "list":
+                        profileManager.ListProfiles();
+                        break;
+                    case "list-php":
+                        PhpVersionManager.ListPhpVersions();
+                        break;
+                    default:
+                        AvailableCommands();
+                        break;
                 }
             }
             else if (args.Length == 2)
             {
-                if (args[0].ToLower() == "list")
+                switch (args[0].ToLower())
                 {
-                    Console.WriteLine($"Profiles: ");
-                    var list = Directory.GetFiles(envProfileFolder, "*.env");
-                    foreach (var env in list)
-                    {
-                        Console.WriteLine($"* {Path.GetFileNameWithoutExtension(env)}");
-                    }
+                    case "save":
+                        if (!IsAdministrator())
+                        {
+                            Console.WriteLine("Admin permission is required. Restarting with elevated permissions...");
+                            RestartAsAdministrator(args);
+                            return;
+                        }
+                        profileManager.SaveProfile(args[1]);
+                        break;
+                    case "load":
+                        profileManager.LoadProfile(args[1]);
+                        break;
+                    case "php":
+                        PhpVersionManager.AddPhpVersion(args[1]);
+                        break;
+                    case "add-php":
+                        PhpVersionManager.AddPhpVersion(args[1]);
+                        break;
+                    default:
+                        UnavailableCommands();
+                        break;
                 }
-                else if (args[0].ToLower() == "save")
-                {
-                    var varsUser = Environment.GetEnvironmentVariables(EnvironmentVariableTarget.User);
-                    var varsMachine = Environment.GetEnvironmentVariables(EnvironmentVariableTarget.Machine);
-
-                    ProfileStruct @struct = new ProfileStruct()
-                    {
-                        UserVars = CreateDictionary(varsUser),
-                        MachineVars = CreateDictionary(varsMachine),
-                    };
-
-                    File.WriteAllText(Path.Combine(envProfileFolder, args[1]) + ".env",
-                        Newtonsoft.Json.JsonConvert.SerializeObject(@struct));
-                }
-                else if (args[0].ToLower() == "load")
-                {
-                    if (!File.Exists(Path.Combine(envProfileFolder, args[1]) + ".env"))
-                    {
-                        Console.WriteLine($"Profile {args[1]} is not exist");
-                        return;
-                    }
-
-                    Console.WriteLine($"Loading profile...");
-                    string EnvPath = File.ReadAllText(Path.Combine(envProfileFolder, args[1]) + ".env");
-                    var profileStruct = Newtonsoft.Json.JsonConvert.DeserializeObject<ProfileStruct>(EnvPath);
-
-                    var varsUser = Environment.GetEnvironmentVariables(EnvironmentVariableTarget.User);
-                    var varsMachine = Environment.GetEnvironmentVariables(EnvironmentVariableTarget.Machine);
-                    Console.WriteLine($"Loaded profile");
-
-                    Console.WriteLine($"Deleting User Env Vars...");
-                    foreach (var item in CreateDictionary(varsUser))
-                        Environment.SetEnvironmentVariable(item.Key, null, EnvironmentVariableTarget.User);
-                    Console.WriteLine($"Deleted User Env Vars...");
-
-                    Console.WriteLine($"Deleting Machine Env Vars...");
-                    foreach (var item in CreateDictionary(varsMachine))
-                        Environment.SetEnvironmentVariable(item.Key, null, EnvironmentVariableTarget.Machine);
-                    Console.WriteLine($"Deleted Machine Env Vars...");
-
-                    Console.WriteLine($"Setting User Env Vars...");
-                    foreach (var item in profileStruct.UserVars)
-                        Environment.SetEnvironmentVariable(item.Key, item.Value, EnvironmentVariableTarget.User);
-                    Console.WriteLine($"Setted User Env Vars!");
-
-                    Console.WriteLine($"Setting Machine Env Vars...");
-                    foreach (var item in profileStruct.MachineVars)
-                        Environment.SetEnvironmentVariable(item.Key, item.Value, EnvironmentVariableTarget.Machine);
-                    Console.WriteLine($"Setted Machine Env Vars!");
-                }
-                else
-                {
-                    UnavaiableCommands();
-                }
+            }
+            else if (args.Length == 1 && args[0].ToLower() == "remove-php")
+            {
+                PhpVersionManager.RemovePhpVersions();
             }
             else
             {
                 AvailableCommands();
             }
+        }
+
+        private static void UnavailableCommands()
+        {
+            Console.WriteLine("Command not available.");
+        }
+
+        static void RestartAsAdministrator(string[] args)
+        {
+            ProcessStartInfo proc = new ProcessStartInfo
+            {
+                UseShellExecute = true,
+                WorkingDirectory = Environment.CurrentDirectory,
+                FileName = Process.GetCurrentProcess().MainModule.FileName,
+                Verb = "runas",  // This causes the process to be launched with admin rights
+                Arguments = string.Join(" ", args)  // Pass the same command-line arguments
+            };
+
+            try
+            {
+                Process.Start(proc);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("Failed to restart the application as an administrator: " + ex.Message);
+            }
+
+            Environment.Exit(0); // Close the current instance
         }
 
         static void UnavaiableCommands()
@@ -129,6 +119,7 @@ namespace set_env
             Console.WriteLine("set-env list");
             Console.WriteLine("set-env load {Profile}");
             Console.WriteLine("set-env save {Profile}");
+            Console.WriteLine("set-env php list");
         }
 
         private static Dictionary<string, string> CreateDictionary(System.Collections.IDictionary vars)

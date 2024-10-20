@@ -185,6 +185,9 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="EnvironmentHelper.cs" />
+    <Compile Include="EnvProfileManager.cs" />
+    <Compile Include="PhpVersionManager.cs" />
     <Compile Include="ProfileStruct.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

@@ -8,4 +8,4 @@ D:\Projects\1AOrganized\CSharp Projects\Musoftware\set-env\set-env\obj\Debug\set
 D:\Projects\1AOrganized\CSharp Projects\Musoftware\set-env\set-env\bin\Debug\Newtonsoft.Json.xml
 D:\Projects\1AOrganized\CSharp Projects\Musoftware\set-env\set-env\bin\Debug\System.Diagnostics.DiagnosticSource.xml
 D:\Projects\1AOrganized\CSharp Projects\Musoftware\set-env\set-env\obj\Debug\set-env.csproj.Fody.CopyLocal.cache
-D:\Projects\1AOrganized\CSharp Projects\Musoftware\set-env\set-env\obj\Debug\set-env.csproj.CopyComplete
+D:\Projects\1AOrganized\CSharp Projects\Musoftware\set-env\set-env\obj\Debug\set-env.csproj.Up2Date
