@@ -21,11 +21,8 @@ namespace set_env
 
         static void Main(string[] args)
         {
-
             string path = Path.GetDirectoryName(Assembly.GetEntryAssembly().Location);
             EnvProfileManager profileManager = new EnvProfileManager(path);
-
-
 
             if (args.Length == 1)
             {
@@ -44,25 +41,49 @@ namespace set_env
             }
             else if (args.Length == 2)
             {
+                if (!IsAdministrator())
+                {
+                    Console.WriteLine("Admin permission is required. Restarting with elevated permissions...");
+                    RestartAsAdministrator(args);
+                    return;
+                }
                 switch (args[0].ToLower())
                 {
                     case "save":
-                        if (!IsAdministrator())
-                        {
-                            Console.WriteLine("Admin permission is required. Restarting with elevated permissions...");
-                            RestartAsAdministrator(args);
-                            return;
-                        }
                         profileManager.SaveProfile(args[1]);
                         break;
                     case "load":
                         profileManager.LoadProfile(args[1]);
                         break;
                     case "php":
-                        PhpVersionManager.AddPhpVersion(args[1]);
-                        break;
                     case "add-php":
                         PhpVersionManager.AddPhpVersion(args[1]);
+
+                        if (Environment.OSVersion.Platform == PlatformID.Win32NT)
+                        {
+                            // For CMD
+                            Process.Start(new ProcessStartInfo
+                            {
+                                FileName = "cmd.exe",
+                                Arguments = "/c setx PATH \"%PATH%;C:\\Path\\To\\PHP\"",
+                                RedirectStandardOutput = true,
+                                UseShellExecute = false,
+                                CreateNoWindow = true
+                            });
+
+                            // For PowerShell
+                            Process.Start(new ProcessStartInfo
+                            {
+                                FileName = "powershell.exe",
+                                Arguments = "[System.Environment]::SetEnvironmentVariable('PATH', $env:Path, [System.EnvironmentVariableTarget]::User); $env:PATH = [System.Environment]::GetEnvironmentVariable('PATH', [System.EnvironmentVariableTarget]::User)",
+                                RedirectStandardOutput = true,
+                                UseShellExecute = false,
+                                CreateNoWindow = true
+                            });
+
+                            Console.WriteLine("Environment variables refreshed. You may need to restart the console.");
+                        }
+
                         break;
                     default:
                         UnavailableCommands();

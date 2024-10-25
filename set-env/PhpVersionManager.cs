@@ -46,6 +46,7 @@ namespace set_env
                 // Add the PHP version path to the system PATH variable
                 EnvironmentHelper.AddPathVariable(versionPath, EnvironmentVariableTarget.Machine);
                 Console.WriteLine($"Added PHP version {version} to the PATH.");
+                Console.ReadKey();
             }
             else
             {
@@ -81,7 +82,10 @@ namespace set_env
                 var versions = Directory.GetDirectories(PhpDir);
                 foreach (var version in versions)
                 {
-                    RemovePhpVersion(Path.GetFileName(version));
+                    if (Path.GetFileName(version).StartsWith("php"))
+                    {
+                        RemovePhpVersion(Path.GetFileName(version));
+                    }
                 }
             }
             else
